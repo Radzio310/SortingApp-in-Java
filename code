@@ -1,0 +1,407 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ */
+
+package com.mycompany.sortingapp1;
+
+/**
+ *
+ * @author Radziulek
+ */
+import javax.swing.*;
+import java.awt.event.*;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Random;
+
+public class SortingApp1 extends JFrame implements ActionListener 
+{
+    private JTextArea textArea;
+    private JButton loadFileButton;
+    private JButton generateDataButton;
+    private JButton bubbleSortButton;
+    private JButton insertSortButton;
+    private JComboBox<String> dataTypeComboBox;
+    private JComboBox<String> dataSizeComboBox;
+    
+
+    private ArrayList<String> data = new ArrayList<>();
+
+    public SortingApp1() 
+    {
+        setTitle("Sortowanie i generowanie danych");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(700, 500);
+        setLocationRelativeTo(null);
+        
+        setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
+        
+        JPanel panel = new JPanel();
+
+        textArea = new JTextArea(25, 40);
+        JScrollPane scrollPane = new JScrollPane(textArea);
+        
+        loadFileButton = new JButton("Załaduj dane");
+        loadFileButton.addActionListener(this);
+
+        generateDataButton = new JButton("Generuj dane");
+        generateDataButton.addActionListener(this);
+
+        bubbleSortButton = new JButton("Bubble Sort");
+        bubbleSortButton.addActionListener(this);
+        
+        insertSortButton = new JButton("Insert Sort");
+        insertSortButton.addActionListener(this);
+
+        String[] dataTypes = {"Integer", "Float", "String"};
+        dataTypeComboBox = new JComboBox<>(dataTypes);
+        JLabel dataTypeLabel = new JLabel("Typ danych:");
+
+        String[] dataSizes = {"100", "1000", "100000"};
+        dataSizeComboBox = new JComboBox<>(dataSizes);
+        JLabel dataSizeLabel = new JLabel("Ile:");
+
+        panel.add(dataTypeLabel);
+        panel.add(dataTypeComboBox);
+
+        panel.add(dataSizeLabel);
+        panel.add(dataSizeComboBox);
+
+        panel.add(generateDataButton);
+        panel.add(loadFileButton);
+        
+        panel.add(insertSortButton);
+        panel.add(bubbleSortButton);
+
+        panel.add(scrollPane);
+
+        add(panel);
+        setVisible(true);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) 
+    {
+        if (e.getSource() == loadFileButton) 
+        {
+            loadDataFromFile();
+        } else if (e.getSource() == generateDataButton) 
+        {
+            generateData();
+        } else if (e.getSource() == bubbleSortButton) 
+        {
+            bubbleSortData(); // tu będzie bąbelkowe
+        } else if (e.getSource() == insertSortButton)
+        {
+            insertSortData(); // tu będzie przez wstawianie
+        }
+    }
+
+    private void loadDataFromFile() 
+    {
+        JFileChooser fileChooser = new JFileChooser();
+        int returnValue = fileChooser.showOpenDialog(null);
+
+        if (returnValue == JFileChooser.APPROVE_OPTION) 
+        {
+            try (BufferedReader reader = new BufferedReader(new FileReader(fileChooser.getSelectedFile()))) 
+            {
+                String line;
+                data.clear();
+                while ((line = reader.readLine()) != null) 
+                {
+                    data.add(line.trim());
+                }
+                displayData("Dane załadowane z pliku:");
+                setTitle("Sortowanie i generowanie - dane załadowane z pliku " + fileChooser.getSelectedFile());
+            } catch (IOException e) 
+            {
+                e.printStackTrace();
+            }
+        }
+        
+    }
+
+    private void generateData() 
+    {
+        String selectedDataType = (String) dataTypeComboBox.getSelectedItem();
+        int selectedDataSize = Integer.parseInt((String) dataSizeComboBox.getSelectedItem());
+        Random random = new Random();
+        data.clear();
+
+        if (selectedDataType.equals("Integer")) 
+        {
+            for (int i = 0; i < selectedDataSize; i++) 
+            {
+                data.add(String.valueOf(random.nextInt(1000)));
+            }
+        } else if (selectedDataType.equals("Float")) 
+        {
+            for (int i = 0; i < selectedDataSize; i++) 
+            {
+                data.add(String.format("%.2f", random.nextFloat() * 100));
+            }
+        } else if (selectedDataType.equals("String")) 
+        {
+            for (int i = 0; i < selectedDataSize; i++) 
+            {
+                StringBuilder stringBuilder = new StringBuilder();
+                for (int j = 0; j < 5; j++) 
+                {
+                    char c = (char) ('a' + random.nextInt(26));
+                    stringBuilder.append(c);
+                }
+                data.add(stringBuilder.toString());
+            }
+        }
+        displayData("Wygenerowane dane:");
+        setTitle("Sortowanie i generowanie - wygenerowane losowo " + selectedDataSize + " danych typu " + selectedDataType);
+    }
+    
+    public class InsertionSort 
+    {
+
+        public static void insertionIntSort(ArrayList<Integer> list) 
+        {
+            int n = list.size();
+
+            for (int i = 1; i < n; ++i) 
+            {
+                int key = list.get(i);
+                int j = i - 1;
+
+                while (j >= 0 && list.get(j) > key) 
+                {
+                    list.set(j + 1, list.get(j));
+                    j = j - 1;
+                }
+                list.set(j + 1, key);
+            }
+        }
+
+        // Sortowanie przez wstawianie dla danych typu Float
+        public static void insertionFloatSort(ArrayList<Float> list) 
+        {
+            int n = list.size();
+
+            for (int i = 1; i < n; ++i) 
+            {
+                float key = list.get(i);
+                int j = i - 1;
+
+                while (j >= 0 && list.get(j) > key) 
+                {
+                    list.set(j + 1, list.get(j));
+                    j = j - 1;
+                }
+                list.set(j + 1, key);
+            }
+        }
+
+        // Sortowanie przez wstawianie dla danych typu String
+        public static void insertionStringSort(ArrayList<String> list) 
+        {
+            int n = list.size();
+
+            for (int i = 1; i < n; ++i) 
+            {
+                String key = list.get(i);
+                int j = i - 1;
+
+                while (j >= 0 && key.compareTo(list.get(j)) < 0) 
+                {
+                    list.set(j + 1, list.get(j));
+                    j = j - 1;
+                }
+                list.set(j + 1, key);
+            }
+        }
+    }
+    private void insertSortData()
+    {
+        setTitle("Sortowanie i generowanie - sortowanie przez wstawianie");
+        ArrayList<Integer> intList = new ArrayList<>();
+        ArrayList<Float> floatList = new ArrayList<>();
+        ArrayList<String> stringList = new ArrayList<>();
+
+        for (String value : data) 
+        {
+            try 
+            {
+                float floatValue = Float.parseFloat(value);
+                floatList.add(floatValue);
+            } catch (NumberFormatException e) 
+            {
+                try 
+                {
+                    int intValue = Integer.parseInt(value);
+                    intList.add(intValue);
+                } catch (NumberFormatException ex) 
+                {
+                    stringList.add(value);
+                }
+            }
+        }
+
+        InsertionSort.insertionIntSort(intList);
+        InsertionSort.insertionFloatSort(floatList);
+        InsertionSort.insertionStringSort(stringList);
+
+        data.clear();
+        data.addAll(convertToStringList(intList));
+        data.addAll(convertToStringList(floatList));
+        data.addAll(stringList);
+
+        displayData("Dane posortowane sortowaniem przez wstawianie:");
+        saveDataToFile();
+    }
+    
+    public class BubbleSort 
+    {
+
+    // Sortowanie bąbelkowe dla danych typu Integer
+    public static void bubbleIntSort(ArrayList<Integer> list) 
+    {
+        int n = list.size();
+
+        for (int i = 0; i < n - 1; i++) 
+        {
+            for (int j = 0; j < n - i - 1; j++) 
+            {
+                if (list.get(j) > list.get(j + 1)) 
+                {
+                    // Zamień miejscami elementy, jeżeli są w złym porządku
+                    int temp = list.get(j);
+                    list.set(j, list.get(j + 1));
+                    list.set(j + 1, temp);
+                }
+            }
+        }
+    }
+
+    // Sortowanie bąbelkowe dla danych typu Float
+    public static void bubbleFloatSort(ArrayList<Float> list) 
+    {
+        int n = list.size();
+
+        for (int i = 0; i < n - 1; i++) 
+        {
+            for (int j = 0; j < n - i - 1; j++) 
+            {
+                if (list.get(j) > list.get(j + 1)) 
+                {
+                    // Zamień miejscami elementy, jeżeli są w złym porządku
+                    float temp = list.get(j);
+                    list.set(j, list.get(j + 1));
+                    list.set(j + 1, temp);
+                }
+            }
+        }
+    }
+
+    // Sortowanie bąbelkowe dla danych typu String
+    public static void bubbleStringSort(ArrayList<String> list) 
+    {
+        int n = list.size();
+
+        for (int i = 0; i < n - 1; i++) 
+        {
+            for (int j = 0; j < n - i - 1; j++) 
+            {
+                if (list.get(j).compareTo(list.get(j + 1)) > 0) 
+                {
+                    // Zamień miejscami elementy, jeżeli są w złym porządku
+                    String temp = list.get(j);
+                    list.set(j, list.get(j + 1));
+                    list.set(j + 1, temp);
+                }
+            }
+        }
+    }
+}
+    private void bubbleSortData()
+    {
+        setTitle("Sortowanie i generowanie - sortowanie bąbelkowe");
+        ArrayList<Integer> intList = new ArrayList<>();
+        ArrayList<Float> floatList = new ArrayList<>();
+        ArrayList<String> stringList = new ArrayList<>();
+
+        for (String value : data) 
+        {
+            try 
+            {
+                float floatValue = Float.parseFloat(value);
+                floatList.add(floatValue);
+            } catch (NumberFormatException e) 
+            {
+                try 
+                {
+                    int intValue = Integer.parseInt(value);
+                    intList.add(intValue);
+                } catch (NumberFormatException ex) 
+                {
+                    stringList.add(value);
+                }
+            }
+        }
+
+        BubbleSort.bubbleIntSort(intList);
+        BubbleSort.bubbleFloatSort(floatList);
+        BubbleSort.bubbleStringSort(stringList);
+
+        data.clear();
+        data.addAll(convertToStringList(intList));
+        data.addAll(convertToStringList(floatList));
+        data.addAll(stringList);
+
+        displayData("Dane posortowane sortowaniem bąbelkowym:");
+        saveDataToFile();
+    }
+
+    private void saveDataToFile() 
+    {
+        JFileChooser fileChooser = new JFileChooser();
+        int returnValue = fileChooser.showSaveDialog(null);
+
+        if (returnValue == JFileChooser.APPROVE_OPTION) 
+        {
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileChooser.getSelectedFile()))) 
+            {
+                for (String value : data) 
+                {
+                    writer.write(value);
+                    writer.newLine();
+                }
+            } catch (IOException e) 
+            {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void displayData(String message) 
+    {
+        StringBuilder dataToShow = new StringBuilder(message + "\n");
+        for (String value : data) 
+        {
+            dataToShow.append(value).append("\n");
+        }
+        textArea.setText(dataToShow.toString());
+    }
+
+    private ArrayList<String> convertToStringList(ArrayList<? extends Object> list) 
+    {
+        ArrayList<String> stringList = new ArrayList<>();
+        for (Object obj : list) 
+        {
+            stringList.add(String.valueOf(obj));
+        }
+        return stringList;
+    }
+
+    public static void main(String[] args) 
+    {
+        SwingUtilities.invokeLater(SortingApp1::new);
+    }
+}
+
